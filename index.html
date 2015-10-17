@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - STL</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+
+		<script src="bower_components/three.js/three.min.js"></script>
+		<script src="STLLoader.js"></script>
+    <script src='TrackballControls.js'>
+
+    </script>
+
+		<script>
+
+			var container;
+
+			var camera, cameraTarget, scene, renderer;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 15 );
+				camera.position.set( 3, 0.15, 3 );
+
+        // MOUSE CONTROLS
+        controls = new THREE.TrackballControls( camera );
+	      controls.rotateSpeed = 2.0;
+				controls.zoomSpeed = 2.2;
+				controls.panSpeed = 0.8;
+				controls.noZoom = false;
+				controls.noPan = false;
+				controls.staticMoving = true;
+				controls.dynamicDampingFactor = 0.3;
+				controls.keys = [ 65, 83, 68 ];
+				controls.addEventListener( 'change', render );
+				cameraTarget = new THREE.Vector3( 0, -0.25, 0 );
+
+				scene = new THREE.Scene();
+
+				var loader = new THREE.STLLoader();
+				var material = new THREE.MeshPhongMaterial( { color: 0xAAAAAA, specular: 0xffffff, shininess: 100 } );
+
+				loader.load( './stl/STEP1.stl', function ( geometry ) {
+					var mesh = new THREE.Mesh( geometry, material );
+					mesh.scale.set(0.02, 0.02, 0.02);
+					scene.add(mesh);
+				});
+
+				// LIGHTS
+				scene.add( new THREE.HemisphereLight( 0xffffff, 0x111122 ) );
+
+
+				// RENDERER
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				container.appendChild( renderer.domElement );
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+        controls.handleResize();
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+				render();
+        controls.update();
+			}
+
+			function render() {
+				camera.lookAt(cameraTarget);
+				renderer.render(scene, camera);
+			}
+
+		</script>
+	</body>
+</html>
